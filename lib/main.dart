@@ -1,8 +1,7 @@
 // main.dart
 import 'package:flutter/material.dart';
-
-import 'questao.dart';
-import 'resposta.dart';
+import 'package:perguntas/questionario.dart';
+import 'package:perguntas/resultado.dart';
 
 void main() {
   runApp(const PerguntaApp());
@@ -17,50 +16,77 @@ class PerguntaApp extends StatefulWidget {
 
 class _PerguntaAppState extends State<PerguntaApp> {
   var _perguntaSelecionada = 0;
+  var _pontuacaoTotal = 0;
 
-  final perguntas = [
+  final _perguntas = [
     {
       'texto': 'Qual é a sua cor favorita?',
-      'respostas': ['Preto', 'Vermelho', 'Verde', 'Branco']
+      'respostas': [
+        {'texto': 'Preto', 'pontos': 10},
+        {'texto': 'Vermelho', 'pontos': 5},
+        {'texto': 'Verde', 'pontos': 3},
+        {'texto': 'Branco', 'pontos': 1},
+      ],
     },
     {
       'texto': 'Qual é o seu animal favorito?',
-      'respostas': ['Coelho', 'Cobra', 'Elefante', 'Leão']
+      'respostas': [
+        {'texto': 'Coelho', 'pontos': 10},
+        {'texto': 'Cobra', 'pontos': 5},
+        {'texto': 'Elefante', 'pontos': 3},
+        {'texto': 'Leão', 'pontos': 1},
+      ],
     },
     {
       'texto': 'Qual é o seu carro favorito?',
-      'respostas': ['Jeep', 'BMW', 'Nissan', 'Ford']
+      'respostas': [
+        {'texto': 'Jeep', 'pontos': 10},
+        {'texto': 'BMW', 'pontos': 5},
+        {'texto': 'Nissan', 'pontos': 3},
+        {'texto': 'Ford', 'pontos': 1},
+      ],
     }
   ];
 
-  void _responder() {
-    if (_perguntaSelecionada < (perguntas.length - 1))
+  void _responder(int potuacao) {
+    if (temPerguntaSelecinada)
       setState(() {
         _perguntaSelecionada++;
+        _pontuacaoTotal += potuacao;
       });
-    else
-      setState(() {
-        _perguntaSelecionada = 0;
-      });
-    print(_perguntaSelecionada);
+  }
+
+  void _reiniciarQuestionario() {
+    setState(() {
+      _perguntaSelecionada = 0;
+      _pontuacaoTotal = 0;
+    });
+  }
+
+  /* 
+  * Aqui é um exemplo de propriedade somente leitura.
+  */
+  bool get temPerguntaSelecinada {
+    return _perguntaSelecionada < _perguntas.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> respostas =
-        perguntas[_perguntaSelecionada]['respostas'] as List<String>;
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Perguntas'),
         ),
-        body: Column(
-          children: [
-            Questao(texto: perguntas[_perguntaSelecionada]['texto'] as String),
-            ...respostas.map((r) => Resposta(r, _responder)).toList(),
-          ],
-        ),
+        body: temPerguntaSelecinada
+            ? Questinario(
+                perguntas: _perguntas,
+                perguntaSelecionada: _perguntaSelecionada,
+                quandoResponder: _responder,
+              )
+            : Resultado(
+                _pontuacaoTotal,
+                _reiniciarQuestionario,
+              ),
       ),
     );
   }
